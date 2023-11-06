@@ -1,0 +1,23 @@
+#cloud-config
+hostname: {{ vm_name }}
+manage_etc_hosts: true
+users:
+  - name: vlad
+    passwd: "$6$Ut6mSjl/MY.VCMqF$dJwSnGD8JfcqYQDZo6Coe8zzvyaz9jyPBuVI.F3PPGNGawvZESirv6kSXIaUFerB8HtLrra3nsPdCIN7DUkJ2/"
+    lock-passwd: false
+    chpasswd: { expire: False }
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    home: /home/vlad
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - {{ lookup('file', '../../common/files/vlad.pub') }}
+
+ssh_pwauth: false
+lock_passwd: false
+disable_root: true
+package_update: true
+package_upgrade: true
+packages:
+  - openssh-server
+  - python-minimal
+  - locales-all

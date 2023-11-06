@@ -1,0 +1,32 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - route53:
+        ####
+        # ~/.aws/credentials
+        #
+        # [vlad]
+        # aws_access_key_id = ...
+        # aws_secret_access_key = ...
+        ####
+        profile: vlad
+
+        state: present
+        zone: eample.com
+        record: de.front.example.com
+        type: A
+        value: "{{ item.value }}"
+        ttl: 60
+        identifier: "{{ item.identifier }}"
+        weight: "{{ item.weight }}"
+        overwrite: yes
+      loop:
+        ####
+        # weight = 0 # front disabled
+        # weight >= 1 # front enabled
+        ####
+        - { identifier: "server1", value: "ip1", weight: 0 }
+        - { identifier: "server2", value: "ip2", weight: 1 }
+        - { identifier: "server3", value: "ip3",  weight: 1 }

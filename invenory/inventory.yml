@@ -1,0 +1,27 @@
+servers:
+  vars:
+    ansible_user: vlad
+    ansible_port: 2249
+  children:
+    kvm:
+      hosts:
+        kvm-server:
+          ansible_hosting: local
+          ansible_host: miniserver.local
+
+    kube-servers:
+      hosts:
+        kube-server:
+          ansible_hosting: local
+          ansible_host: 172.64.0.2
+        kube-server-30:
+          ansible_hosting: local
+          ansible_host: 172.64.0.3
+    kube-node:
+      hosts:
+        kube-node:
+          ansible_hosting: local
+          ansible_host: 172.64.0.4
+        kube-node-30:
+          ansible_hosting: local
+          ansible_host: 172.64.0.5

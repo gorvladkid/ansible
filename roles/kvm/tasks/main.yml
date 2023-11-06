@@ -1,0 +1,32 @@
+---
+- name: Install packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+
+# Create a new partition
+# Create a Physical Volume
+# Create a Volume Group
+# Create a Logical Volume
+
+- name: Create partition
+  parted:
+    device: /dev/nvme1n1
+    number: 1
+    flags: [ lvm ]
+    state: present
+    # part_end: 2GB
+
+- name: Creating volume group
+  lvg:
+      vg: kvm_vg
+      pvs: /dev/nvme1n1
+      # pesize: 16
+
+- name: Creating logical volume
+  lvol:
+      vg: kvm_vg
+      lv:  kube-server
+      size: 100g
+      # force: yes

@@ -1,0 +1,114 @@
+- name: Install Requirements
+  apt:
+    name: "{{ vm_pakages }}"
+    update_cache: yes
+    state: present
+
+- name: "Enable IP forwarding in sysctl"
+  sysctl:
+    name: "net.ipv4.ip_forward"
+    value: "1"
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+#right here must be check if br0 exist
+- name: Prepare directories
+  file:
+    path: "{{ libvirt_images_dir }}"
+    state: directory
+    recurse: yes
+
+- name: Load base image
+  get_url:
+    url: "{{ libvirt_base_image_url }}"
+    dest: "{{ libvirt_images_dir }}/{{ libvirt_base_image }}"
+    owner: libvirt-qemu
+    group: libvirt-qemu
+    mode: '0775'
+
+# - name: Prepare vm image
+#   shell:
+#     chdir: "{{ libvirt_images_dir }}"
+#     cmd: "qemu-img create -b {{ libvirt_base_image }} -f qcow2 -F qcow2 {{ vm_image }} {{ vm_disk_size }}"
+#     creates: "{{ vm_image }}"
+
+- name: Prepare vm image
+  shell:
+    chdir: "{{ libvirt_images_dir }}"
+    cmd: "dd if={{ libvirt_base_image }} of={{ vm_disk }} bs={{ vm_bs }}"
+    creates: "{{ vm_image }}"
+
+# - name: Fix image owner
+#   file:
+#     path: "{{ libvirt_images_dir }}/{{ vm_image }}"
+#     owner: libvirt-qemu
+#     group: libvirt-qemu
+#     mode: '600'
+
+- name: Prepare colud-init templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ libvirt_images_dir }}"
+    owner: libvirt-qemu
+    group: libvirt-qemu
+    mode: '644'
+  loop:
+    - cloud_init.yml
+    - network-config.yml
+
+- name: Prepare cloud-init disk
+  shell:
+    chdir: "{{ libvirt_images_dir }}"
+    cmd: "cloud-localds --network-config=network-config.yml {{ vm_name }}_cloud_init.img cloud_init.yml"
+
+- name: "Define {{ vm_name }} "
+  virt:
+    guest: "{{ vm_name }}"
+    command: define
+    uri: "{{ libvirt_uri }}"
+    xml: "{{ lookup('template', 'default.xml') }}"
+    autostart: yes
+
+- name: "Run {{ vm_name }} "
+  virt:
+    name: "{{ vm_name }}"
+    state: running
+
+# - name: Create machine
+#   shell:
+#     chdir: "{{ libvirt_images_dir }}"
+#     cmd: >
+#       virt-install
+#       --name {{ vm_name }}
+#       --virt-type kvm
+#       --memory  {{ vm_memory_mb }}
+#       --vcpus {{ vm_vcpus }}
+#       --boot hd
+#       --disk path={{ vm_name }}_cloud_init.img,device=cdrom
+#       --disk path={{ vm_disk }},device=disk
+#       --graphics vnc
+#       --os-variant debian12
+#       --noautoconsole
+
+- name: Wait for port 22
+  wait_for:
+    port: 22
+    host: "{{ vm_ip }}"
+    delay: 10
+
+- name: Eject cdrom
+  shell:  >
+    virsh change-media {{ vm_name }}
+    --path sda
+    --eject
+
+- name: Cleanup
+  file:
+    path: "{{ libvirt_images_dir }}/{{ item }}"
+    state: absent
+  loop:
+    - cloud_init.yml
+    - network-config.yml
+    - "{{ vm_name }}_cloud_init.img"
+    - "{{ libvirt_images_dir }}/{{ libvirt_base_image }}"

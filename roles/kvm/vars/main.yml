@@ -1,0 +1,19 @@
+---
+packages:
+  - bridge-utils
+  - cpu-checker
+  - libvirt-clients
+  - libvirt-daemon
+  - qemu
+  - qemu-kvm
+  - lvm2
+
+kvm_disks:
+  - partition: /dev/nvme1n1
+    volume_groupe: kvm_vg
+    logical_volume:
+  vg_g
+
+Create a new partition
+Create a Volume Group
+Create a Logical Volume

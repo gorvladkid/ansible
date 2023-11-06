@@ -1,0 +1,15 @@
+- hosts: kvm
+  become: yes
+  vars:
+    # vm_name: kube-server
+    # vm_name: kube-server30
+    # vm_name: kube-node
+    vm_name: kube-node30
+    vm_memory_mb: 4096
+    vm_vcpus: 3
+    vm_disk: /dev/kvm_vg/kube_node_30
+    # vm_disk_size: 40G
+    vm_ip: 172.64.0.5
+    vm_gw: 172.64.0.1
+  roles:
+    - vm

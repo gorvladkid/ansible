@@ -1,0 +1,8 @@
+- hosts:
+    - kvm
+  become: true
+  vars:
+    ssh_port: 2249
+  roles:
+    # - common
+    - kvm
