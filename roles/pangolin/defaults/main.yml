@@ -1,0 +1,31 @@
+linux_image_version: 5.15.0-88-generic
+linux_tz: Europe/Kyiv
+gtp5g_url: https://github.com/free5gc/gtp5g/archive/refs/heads/master.zip
+libgtp5gnl_url: https://github.com/PrinzOwO/libgtp5gnl/archive/refs/heads/master.zip
+
+pakages:
+  - dwarves
+  - gcc
+  - make
+  - python3.8
+  - libsctp-dev
+  - python3.8-dev
+  - python3.8-venv
+  - python3.8-venv
+  - git
+  - vim
+  - iperf3
+  - libtool
+  - libmnl*
+  - libmnl-dev
+  - build-essential
+  - pkg-config
+  - libgmp3-dev
+  - autoconf
+  - python3-pip
+  - net-tools
+  - unzip
+  - wget
+  - default-libmysqlclient-dev
+  - "linux-headers-{{linux_image_version}}"
+  - "linux-image-{{linux_image_version}}"

@@ -1,0 +1,31 @@
+---
+cluster_name: kubernetes-cluster-01
+packages:
+  - git
+  - cfssl
+
+certificate_dir: /tmp/ansible/kubernetes-certificate
+ca_sub_dirs:
+  - templates
+  - ssh
+  - ca
+  - intermediates/kubernetes-ca
+  - intermediates/etcd-ca
+  - intermediates/kubernetes-front-proxy-ca
+  - intermediates/kubernetes-service-account-management-ca
+
+### root CA expired time (20 year)
+expireTime: 175200h
+### intermediate CA expired time (10 year)
+intermediateExpireTime: 87600h
+### certificate expired time (1 year)
+certificate:
+  expireTime: 8760h
+city: Ternopil
+country: UA
+organizationUnit: Kubernetes
+province: Ternopil
+
+# cfssl_version: 1.5.0
+# cfssl_url: https://github.com/cloudflare/cfssl/releases/download
+# local_bin_dir: /usr/local/bin/

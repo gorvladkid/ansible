@@ -1,8 +1,13 @@
 - hosts:
-    - kvm
+    # - kvm
+    - kube-servers
+    - kube-nodes
+    # - pangolin
   become: true
   vars:
-    ssh_port: 2249
+    ssh_port: "22"
+    # default_vg_name: "kvm_vg"
+    default_lg_name: "pangolin"
   roles:
-    # - common
-    - kvm
+    - common
+    # - kvm

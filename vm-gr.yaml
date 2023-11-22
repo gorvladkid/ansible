@@ -1,0 +1,25 @@
+- hosts: kvm
+  become: yes
+  vars:
+    vm_hosts:
+      - name: kube-load-balancer
+        vm_memory_mb: 2048
+        vm_vcpus: 2
+      # - name: kube-server
+      #   vm_memory_mb: 2048
+      #   vm_vcpus: 2
+      # - name: kube-server-30
+      #   vm_memory_mb: 2048
+      #   vm_vcpus: 2
+      # - name: kube-node
+      #   vm_memory_mb: 4096
+      #   vm_vcpus: 3
+      # - name: kube-node-30
+      #   vm_memory_mb: 2048
+      #   vm_vcpus: 2
+
+    libvirt_base_image: ubuntu-22.img
+    libvirt_base_image_url: https://cdimage.ubuntu.com/ubuntu-server/daily-preinstalled/pending/noble-preinstalled-server-amd64.img.xz
+    vm_gw: 172.64.0.1
+  roles:
+    - vm-group

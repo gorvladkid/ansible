@@ -1,15 +1,20 @@
 - hosts: kvm
   become: yes
   vars:
+    libvirt_base_image: ubuntu-22.img
+    # libvirt_base_image: debian-12-generic-amd64-20231013-1532.qcow2
+    libvirt_base_image_url: https://cdimage.ubuntu.com/ubuntu-server/daily-preinstalled/pending/noble-preinstalled-server-amd64.img.xz
+    vm_name: pangolin
     # vm_name: kube-server
-    # vm_name: kube-server30
+    # vm_name: kube-server-30
     # vm_name: kube-node
-    vm_name: kube-node30
-    vm_memory_mb: 4096
-    vm_vcpus: 3
-    vm_disk: /dev/kvm_vg/kube_node_30
+    # vm_name: kube-node-30
+    vm_memory_mb: 2048
+    vm_vcpus: 2
+    vm_disk: "{{ hostvars[vm_name]['kvm_disk'] }}"
+      # /dev/kvm_vg/kube_node_30
     # vm_disk_size: 40G
-    vm_ip: 172.64.0.5
+    vm_ip: "{{ hostvars[vm_name]['kvm_ip'] }}"
     vm_gw: 172.64.0.1
   roles:
     - vm

@@ -1,0 +1,39 @@
+vm_name: test
+vm_memory_mb: 1024
+vm_vcpus: 1
+vm_disk_size: 10G
+vm_ip:
+vm_gw:
+vm_mac: "{{ '52:54:00' | random_mac }}"
+vm_image: "{{ vm_name }}.qcow2"
+vm_disk: /dev/notexist
+vm_brige_interface: virbr1
+vm_bs: 521
+
+libvirt_vm_engine: kvm
+libvirt_base_image: debian-12.raw
+# libvirt_base_image: debian-12-generic-amd64-20231013-1532.qcow2
+libvirt_base_image_url: https://cdimage.debian.org/cdimage/cloud/bookworm/20231013-1532/debian-12-generic-amd64-20231013-1532.raw
+libvirt_images_dir: /var/lib/libvirt/images
+libvirt_uri: qemu:///system
+
+vm_configs:
+  - cloud_init.yml
+  - network-config.yml
+  - cloud_init.img
+
+vm_pakages:
+  - bridge-utils
+  - cloud-image-utils
+  - netcat-openbsd
+  - python3-libvirt
+  - python3-lxml
+  - python3-apt
+  - qemu-kvm
+  - libvirt0
+  - virtinst
+  - qemu-utils
+  - qemu-system-x86
+  - libvirt-dev
+  - libvirt-daemon-system
+  # - dnsmasq

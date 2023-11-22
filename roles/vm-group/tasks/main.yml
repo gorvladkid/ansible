@@ -1,0 +1,145 @@
+- name: Install Requirements
+  apt:
+    name: "{{ vm_pakages }}"
+    update_cache: yes
+    state: present
+
+- name: "Enable IP forwarding in sysctl"
+  sysctl:
+    name: "net.ipv4.ip_forward"
+    value: "1"
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+#right here must be check if br0 exist
+- name: Prepare directories
+  file:
+    path: "{{ libvirt_images_dir }}"
+    state: directory
+    recurse: yes
+
+# - name: Load base image
+#   get_url:
+#     url: "{{ libvirt_base_image_url }}"
+#     dest: "{{ libvirt_images_dir }}/{{ libvirt_base_image }}.xz"
+#     owner: libvirt-qemu
+#     group: libvirt-qemu
+#     mode: '0775'
+
+# - name: Unarchive vm image
+#   unarchive:
+#     src: "{{ libvirt_base_image_url }}"
+#     dest: "{{ libvirt_images_dir }}"
+#     remote_src: True
+
+# - name: Dublicate image
+#   copy:
+#     src: "{{ libvirt_images_dir }}/{{ libvirt_base_image }}.xz"
+#     dest: "{{ libvirt_images_dir }}/{{ item.name}}_{{ libvirt_base_image }}.xz"
+#     owner: libvirt-qemu
+#     group: libvirt-qemu
+#     mode: '0775'
+#   with_items:
+#     - "{{ vm_hosts }}"
+
+# - name: Prepare vm image
+#   shell:
+#     chdir: "{{ libvirt_images_dir }}"
+#     cmd: "rm -f {{ libvirt_base_image }} && unxz {{ libvirt_base_image }}.xz "
+    # creates: "{{ vm_image }}"
+  # with_items:
+  #   - "{{ vm_hosts }}"
+
+# - name: Prepare vm image
+#   shell:
+#     chdir: "{{ libvirt_images_dir }}"
+#     cmd: "qemu-img create -b {{ libvirt_base_image }} -f qcow2 -F qcow2 {{ vm_image }} {{ vm_disk_size }}"
+#     creates: "{{ vm_image }}"
+
+- name: Prepare vm image
+  shell:
+    chdir: "{{ libvirt_images_dir }}"
+    cmd: "dd if={{ libvirt_base_image }} of={{ hostvars[item.name]['kvm_disk'] }} bs={{ vm_bs }}"
+    # creates: "{{ vm_image }}"
+  with_items:
+    - "{{ vm_hosts }}"
+
+# - name: Fix image owner
+#   file:
+#     path: "{{ libvirt_images_dir }}/{{ vm_image }}"
+#     owner: libvirt-qemu
+#     group: libvirt-qemu
+#     mode: '600'
+
+- name: Prepare colud-init templates
+  template:
+    src: "cloud_init.yml"
+    dest: "{{ libvirt_images_dir }}/{{item.name}}_cloud_init.yml"
+    owner: libvirt-qemu
+    group: libvirt-qemu
+    mode: '644'
+  with_items:
+    - "{{ vm_hosts }}"
+
+- name: Prepare network-config templates
+  template:
+    src: "network-config.yml"
+    dest: "{{ libvirt_images_dir }}/{{item.name}}_network-config.yml"
+    owner: libvirt-qemu
+    group: libvirt-qemu
+    mode: '644'
+  with_items:
+    - "{{ vm_hosts }}"
+
+- name: Prepare cloud-init disk
+  shell:
+    chdir: "{{ libvirt_images_dir }}"
+    cmd: "cloud-localds --network-config={{ item.name }}_network-config.yml {{ item.name }}_cloud_init.img {{ item.name }}_cloud_init.yml"
+  with_items:
+    - "{{ vm_hosts }}"
+
+
+- name: "Define {{ item.name }} "
+  virt:
+    guest: "{{ item.name }}"
+    command: define
+    uri: "{{ libvirt_uri }}"
+    xml: "{{ lookup('template', 'default.xml') }}"
+    autostart: yes
+  with_items:
+    - "{{ vm_hosts }}"
+
+- name: "Run {{ item.name }} "
+  virt:
+    name: "{{ item.name }}"
+    state: running
+  with_items:
+    - "{{ vm_hosts }}"
+
+- name: Wait for port 22
+  wait_for:
+    port: 22
+    host: "{{ hostvars[item.name]['kvm_ip'] }}"
+    delay: 10
+  with_items:
+    - "{{ vm_hosts }}"
+
+- name: Eject cdrom
+  shell:  >
+    virsh change-media {{ item.name }}
+    --path sda
+    --eject
+  with_items:
+    - "{{ vm_hosts }}"
+
+- name: Cleanup
+  file:
+    path: "{{ libvirt_images_dir }}/{{ item.0.name }}_{{ item.1 }}"
+    state: absent
+  with_nested:
+    - "{{ vm_hosts }}"
+    - "{{ vm_configs }}"
+    # - "{{ libvirt_images_dir }}/{{ libvirt_base_image }}"
+  loop_control:
+    label: "{{ item.0.name }}_{{ item.1 }}"

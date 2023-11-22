@@ -1,0 +1,87 @@
+---
+- name: Create ca certificate directory
+  file:
+    path: "{{ certificate_dir }}/{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - "{{ ca_sub_dirs }}"
+
+- name: Copy ca template
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ certificate_dir }}/templates/{{ item }}"
+  with_items:
+    - ca-csr.json
+    - ca-config.json
+    - kubernetes-ca-csr.json
+    - etcd-ca-csr.json
+    - kubernetes-front-proxy-ca-csr.json
+    - kubernetes-service-account-management-ca-csr.json
+
+- name: Generate root CA
+  shell: cfssl gencert -initca {{ certificate_dir }}/templates/ca-csr.json | cfssljson -bare ca
+  args:
+    chdir: "{{ certificate_dir }}/ca/"
+
+- name: Generate intermediate kubernetes-ca
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/ca/ca.pem \
+    -ca-key={{ certificate_dir }}/ca/ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=intermediate \
+    {{ certificate_dir }}/templates/kubernetes-ca-csr.json | cfssljson -bare kubernetes-ca
+  args:
+    chdir: "{{ certificate_dir }}/intermediates/kubernetes-ca"
+
+- name: Generate intermediate etcd-ca
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/ca/ca.pem \
+    -ca-key={{ certificate_dir }}/ca/ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=intermediate \
+    {{ certificate_dir }}/templates/etcd-ca-csr.json | cfssljson -bare etcd-ca
+  args:
+    chdir: "{{ certificate_dir }}/intermediates/etcd-ca"
+
+- name: Generate intermediate kubernetes-front-proxy-ca
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/ca/ca.pem \
+    -ca-key={{ certificate_dir }}/ca/ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=intermediate \
+    {{ certificate_dir }}/templates/kubernetes-front-proxy-ca-csr.json | cfssljson -bare kubernetes-front-proxy-ca
+  args:
+    chdir: "{{ certificate_dir }}/intermediates/kubernetes-front-proxy-ca"
+
+- name: Generate intermediate kubernetes-front-proxy-ca
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/ca/ca.pem \
+    -ca-key={{ certificate_dir }}/ca/ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=intermediate \
+    {{ certificate_dir }}/templates/kubernetes-front-proxy-ca-csr.json | cfssljson -bare kubernetes-front-proxy-ca
+  args:
+    chdir: "{{ certificate_dir }}/intermediates/kubernetes-front-proxy-ca"
+
+- name: Generate intermediate kubernetes-service-account-management-ca
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/ca/ca.pem \
+    -ca-key={{ certificate_dir }}/ca/ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=intermediate \
+    {{ certificate_dir }}/templates/kubernetes-service-account-management-ca-csr.json | cfssljson -bare kubernetes-service-account-management-ca
+  args:
+    chdir: "{{ certificate_dir }}/intermediates/kubernetes-service-account-management-ca"
+
+- name: Generate ssh keys
+  openssh_keypair:
+    path: "{{ certificate_dir }}/ssh/id_ed25519"
+    type: ed25519
+    size: 4096
+    comment: "kube@{{ cluster_name }}"

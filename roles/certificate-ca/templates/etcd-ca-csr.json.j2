@@ -1,0 +1,14 @@
+{
+    "CN": "etcd-ca",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [{
+        "C": "{{ country }}",
+        "L": "{{ city }}",
+        "O": "Kubernetes {{ cluster_name }}",
+        "OU": "{{ organizationUnit }}",
+        "ST": "{{ province }}"
+    }]
+}

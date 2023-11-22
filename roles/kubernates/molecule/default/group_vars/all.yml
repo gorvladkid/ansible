@@ -5,9 +5,9 @@
 harden_linux_ntp: "systemd-timesyncd"
 
 # Password for user "root" and "k8s" is "k8s" in both cases
-harden_linux_root_password: "$6$rounds=656000$mysecretsalt$MAWG.0rF8bob584404vPcgVWbGe9c32KsdGI/.d6F7XFJhlR4PCzKSL4GlPaEWzFMjNSagmupelRqPmhbVhR8."
+harden_linux_root_password: "$6$Ut6mSjl/MY.VCMqF$dJwSnGD8JfcqYQDZo6Coe8zzvyaz9jyPBuVI.F3PPGNGawvZESirv6kSXIaUFerB8HtLrra3nsPdCIN7DUkJ2/"
 harden_linux_deploy_user: "k8s"
-harden_linux_deploy_user_password: "$6$rounds=656000$mysecretsalt$MAWG.0rF8bob584404vPcgVWbGe9c32KsdGI/.d6F7XFJhlR4PCzKSL4GlPaEWzFMjNSagmupelRqPmhbVhR8."
+harden_linux_deploy_user_password: "$6$Ut6mSjl/MY.VCMqF$dJwSnGD8JfcqYQDZo6Coe8zzvyaz9jyPBuVI.F3PPGNGawvZESirv6kSXIaUFerB8HtLrra3nsPdCIN7DUkJ2/"
 harden_linux_deploy_user_home: "/home/k8s"
 
 harden_linux_sysctl_settings_user:

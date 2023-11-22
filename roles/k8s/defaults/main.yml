@@ -1,0 +1,15 @@
+---
+packages:
+  - docker.io
+
+k8s_release: "1.27.5"
+k8s_bin_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ k8s_release }}/bin/linux/amd64"
+k8s_bin_dir: "/usr/local/bin"
+k8s_binaries:
+  - kubeadm
+  - kubelet
+  - kubectl
+  - kube-apiserver
+  - kube-controller-manager
+  - kube-scheduler
+  - kube-proxy

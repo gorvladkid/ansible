@@ -1,0 +1,12 @@
+version: 2
+ethernets:
+  enp3s0:
+    dhcp4: false
+    addresses:
+      - "{{ hostvars[item.name]['kvm_ip'] }}/24"
+    gateway4: '{{ vm_gw }}'
+    nameservers:
+      addresses:
+        - '{{ vm_gw }}'
+        - '1.1.1.1'
+        - '8.8.8.8'

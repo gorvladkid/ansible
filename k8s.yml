@@ -1,0 +1,6 @@
+- hosts:
+    - kube-server
+#    - kube-nodes
+  become: true
+  roles:
+    - k8s

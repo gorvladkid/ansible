@@ -13,15 +13,45 @@ servers:
       hosts:
         kube-server:
           ansible_hosting: local
-          ansible_host: 172.64.0.2
+          kvm_ip: 172.64.0.2
+          kvm_disk: /dev/kvm_vg/kube_server
+          ansible_host: miniserver.local
+          ansible_port: 2241
         kube-server-30:
           ansible_hosting: local
-          ansible_host: 172.64.0.3
-    kube-node:
+          kvm_ip: 172.64.0.3
+          kvm_disk: /dev/kvm_vg/kube_server_30
+          ansible_host: miniserver.local
+          ansible_port: 2242
+    kube-nodes:
       hosts:
         kube-node:
           ansible_hosting: local
-          ansible_host: 172.64.0.4
+          kvm_ip: 172.64.0.4
+          kvm_disk: /dev/kvm_vg/kube_node
+          ansible_host: miniserver.local
+          ansible_port: 2243
         kube-node-30:
           ansible_hosting: local
-          ansible_host: 172.64.0.5
+          kvm_ip: 172.64.0.5
+          kvm_disk: /dev/kvm_vg/kube_node_30
+          ansible_host: miniserver.local
+          ansible_port: 2244
+
+    kube-load-balancers:
+      hosts:
+        kube-load-balancer:
+          ansible_hosting: local
+          kvm_ip: 172.64.0.6
+          kvm_disk: /dev/kvm_vg/load_balancer
+          ansible_host: miniserver.local
+          ansible_port: 2245
+
+    5g-core:
+      hosts:
+        pangolin:
+          ansible_hosting: local
+          kvm_ip: 172.64.0.7
+          kvm_disk: /dev/kvm_vg/pangolin
+          ansible_host: miniserver.local
+          ansible_port: 2246

@@ -5,28 +5,29 @@
     state: present
     update_cache: yes
 
-# Create a new partition
-# Create a Physical Volume
-# Create a Volume Group
-# Create a Logical Volume
+#
+#  Create a new partition
+#  Create a Physical Volume
+#  Create a Volume Group
+#  Create a Logical Volume
 
-- name: Create partition
-  parted:
-    device: /dev/nvme1n1
-    number: 1
-    flags: [ lvm ]
-    state: present
+# - name: Create partition
+#   parted:
+#     device: /dev/nvme1n1
+#     number: 1
+#     flags: [ lvm ]
+#     state: present
     # part_end: 2GB
 
 - name: Creating volume group
   lvg:
-      vg: kvm_vg
-      pvs: /dev/nvme1n1
-      # pesize: 16
+      vg: "{{ kvm_volume_group[default_vg_name]['vg'] }}"
+      pvs: "{{ kvm_volume_group[default_vg_name]['pvs'] }}"
+      # pesize: "{{ kvm_volume_group[default_vg_name].size }}"
 
 - name: Creating logical volume
   lvol:
-      vg: kvm_vg
-      lv:  kube-server
-      size: 100g
+      vg: "{{ kvm_logic_volume[default_lg_name]['vg'] }}"
+      lv: "{{ kvm_logic_volume[default_lg_name]['lv'] }}"
+      size: "{{ kvm_logic_volume[default_lg_name]['size'] }}"
       # force: yes
