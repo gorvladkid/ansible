@@ -1,0 +1,12 @@
+---
+encryptionProvider:
+  # supported provider is aescbc, secretbox, and aesgcm
+  provider: aescbc
+  # Kubernetes resources encrypted
+  resources:
+    - secret
+  # 32 byte random key and base64 encode
+  # generate with command
+  # head -c 32 /dev/urandom | base64
+  # please regenerate this
+  key: 1dCpREUPDaFxheyP0rnlmL33S8A7qUIBBOqaE8Y2sRY==

@@ -1,0 +1,21 @@
+---
+certificate_dir: /tmp/ansible/kubernetes-certificate
+kube_cert_dir: /etc/kubernetes/certificate
+certificate_list:
+  - intermediates/kubernetes-ca/kubernetes-ca.pem
+  - certificates/kube-apiserver/{{ kvm_ip }}-kube-apiserver.pem
+  - certificates/kube-apiserver/{{ kvm_ip }}-kube-apiserver-key.pem
+  - certificates/kube-apiserver-kubelet-client/kube-apiserver-kubelet-client.pem
+  - certificates/kube-apiserver-kubelet-client/kube-apiserver-kubelet-client-key.pem
+  - certificates/front-proxy-client/front-proxy-client.pem
+  - certificates/front-proxy-client/front-proxy-client-key.pem
+  - certificates/kubelet/{{ kvm_ip }}-key.pem
+  - certificates/kubelet/{{ kvm_ip }}.pem
+  - kubeconfig/{{ kvm_ip }}.kubeconfig
+  - kubeconfig/kube-proxy.kubeconfig
+
+certificate_links:
+  - src: {{ kube_cert_dir }}/{{ kvm_ip }}-kube-apiserver.pem
+    dest: {{ kube_cert_dir }}/kube-apiserver.pem
+  - src: {{ kube_cert_dir }}/{{ kvm_ip }}-kube-apiserver-key.pem
+    dest: {{ kube_cert_dir }}/kube-apiserver-key.pem

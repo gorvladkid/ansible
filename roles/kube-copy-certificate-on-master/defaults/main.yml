@@ -1,0 +1,23 @@
+---
+certificate_dir: /tmp/ansible/kubernetes-certificate
+kube_cert_dir: /etc/kubernetes/certificate
+kube_encrypt_dir: /etc/kubernetes/encryption
+certificate_list:
+  - intermediates/etcd-ca/etcd-ca.pem
+  - intermediates/kubernetes-ca/kubernetes-ca.pem
+  - intermediates/kubernetes-ca/kubernetes-ca-key.pem
+  - intermediates/kubernetes-front-proxy-ca/kubernetes-front-proxy-ca.pem
+  - intermediates/kubernetes-service-account-management-ca/kubernetes-service-account-management-ca.pem
+  - intermediates/kubernetes-service-account-management-ca/kubernetes-service-account-management-ca-key.pem
+  - certificates/kube-apiserver-etcd-client/kube-apiserver-etcd-client.pem
+  - certificates/kube-apiserver-etcd-client/kube-apiserver-etcd-client-key.pem
+  - kubeconfig/admin.kubeconfig
+  - kubeconfig/kube-controller-manager.kubeconfig
+  - kubeconfig/kube-scheduler.kubeconfig
+  - certificates/kubelet/{{ kvm_ip }}-key.pem
+  - certificates/kubelet/{{ kvm_ip }}.pem
+  - kubeconfig/{{ kvm_ip }}.kubeconfig
+  - kubeconfig/kube-proxy.kubeconfig
+
+encryption_configs:
+  - encryption-config.yml

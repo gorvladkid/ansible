@@ -1,0 +1,13 @@
+kind: EncryptionConfig
+apiVersion: v1
+resources:
+  - resources:
+{% for resource in encryptionProvider.resources %}
+      - {{ resource }}
+{% endfor %}
+    providers:
+      - {{ encryptionProvider.provider }}:
+          keys:
+            - name: primary
+              secret: {{ encryptionProvider.key }}
+      - identity: {}

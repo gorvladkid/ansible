@@ -1,0 +1,5 @@
+---
+- name: Copy data encryption template
+  template:
+    src: "encryption-config.yml.j2"
+    dest: "{{ certificate_dir }}/encryption-config.yml"

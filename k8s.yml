@@ -1,5 +1,8 @@
-- name: Generate certificate & kubeconfig
+- name: Generate certificates/kubeconfigs/data-encryption
   connection: local
+  vars:
+    cluster_name: miniserver
+    certificate_dir: /tmp/ansible/{{cluster_name}}/kubernetes-certificate
   hosts:
     - localhost
   roles:
@@ -7,3 +10,23 @@
     - kube-certificate-etcd
     - kube-certificate-master
     - kube-certificate-worker
+    - kube-data-encryption
+
+- name: Update etcd and master
+  vars:
+    cluster_name: miniserver
+    certificate_dir: /tmp/ansible/{{cluster_name}}/kubernetes-certificate
+  hosts:
+    - kube-servers
+  roles:
+    - kube-copy-certificate-on-etcd
+    - kube-copy-certificate-on-master
+
+- name: Update worker
+  vars:
+    cluster_name: miniserver
+    certificate_dir: /tmp/ansible/{{cluster_name}}/kubernetes-certificate
+  hosts:
+    - kube-nodes
+  roles:
+    - kube-copy-certificate-on-worker

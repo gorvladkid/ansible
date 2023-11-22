@@ -1,0 +1,23 @@
+---
+- name: Create kubernates directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - "{{ kube_cert_dir }}"
+    - "{{ kube_encrypt_dir }}"
+
+- name: Copy certificates
+  copy:
+    src: "{{certificate_dir}}/{{ item }}"
+    dest: "{{ kube_cert_dir }}/"
+  with_items:
+    - "{{ certificate_list }}"
+
+- name: Copy encryption configs
+  copy:
+    src: "{{certificate_dir}}/{{ item }}"
+    dest: "{{ kube_encrypt_dir }}/"
+  with_items:
+    - "{{ encryption_configs }}"

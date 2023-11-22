@@ -1,0 +1,18 @@
+---
+certificate_dir: /tmp/ansible/kubernetes-certificate
+kube_cert_dir: {{ kube_cert_dir }}
+certificate_list:
+  - intermediates/etcd-ca/etcd-ca.pem
+  - intermediates/etcd-ca/etcd-ca-key.pem
+  - certificates/kube-etcd/{{ kvm_ip }}-kube-etcd.pem
+  - certificates/kube-etcd/{{ kvm_ip }}-kube-etcd-key.pem
+  - certificates/kube-etcd-peer/kube-etcd-peer.pem
+  - certificates/kube-etcd-peer/kube-etcd-peer-key.pem
+  - certificates/kube-etcd-healthcheck-client/kube-etcd-healthcheck-client.pem
+  - certificates/kube-etcd-healthcheck-client/kube-etcd-healthcheck-client-key.pem
+
+certificate_links:
+  - src: {{ kube_cert_dir }}/{{ kvm_ip }}-kube-etcd.pem
+    dest: {{ kube_cert_dir }}/kube-etcd.pem
+  - src: {{ kube_cert_dir }}/{{ kvm_ip }}-kube-etcd-key.pem
+    dest: {{ kube_cert_dir }}/kube-etcd-key.pem
