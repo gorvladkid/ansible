@@ -1,0 +1,16 @@
+{
+  "CN": "system:node:{{ hostvars[item]['kvm_ip'] }}",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "{{ country }}",
+      "L": "{{ city }}",
+      "O": "system:nodes",
+      "OU": "{{ organizationUnit }}",
+      "ST": "{{ province }}"
+    }
+  ]
+}

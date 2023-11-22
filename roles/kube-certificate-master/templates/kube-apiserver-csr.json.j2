@@ -1,0 +1,14 @@
+{
+    "CN": "kube-apiserver",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [{
+        "C": "{{ country }}",
+        "L": "{{ city }}",
+        "O": "kube-apiserver",
+        "OU": "{{ organizationUnit }}",
+        "ST": "{{ province }}"
+    }]
+}

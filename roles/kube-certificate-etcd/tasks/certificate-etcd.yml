@@ -1,0 +1,71 @@
+---
+- name: Create etcd certificate directory
+  file:
+    path: "{{ certificate_dir }}/{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - "{{ etcd_sub_dirs }}"
+
+- name: Copy etcd templates
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ certificate_dir }}/templates/{{ item }}"
+  with_items:
+    - ca-config.json
+    - kube-etcd-csr.json
+    - kube-etcd-peer-csr.json
+    - kube-etcd-healthcheck-client-csr.json
+    - kube-apiserver-etcd-client-csr.json
+
+- name: Generate kube-etcd certificate
+  args:
+    chdir: "{{ certificate_dir }}/certificates/kube-etcd"
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca.pem \
+    -ca-key={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=client-server \
+    -hostname=localhost,127.0.0.1,{{ hostvars[item]['kvm_ip'] }} \
+    {{ certificate_dir }}/templates/kube-etcd-csr.json | cfssljson -bare {{ hostvars[item]['kvm_ip'] }}-kube-etcd
+  with_items: "{{ groups[etcd_group] }}"
+
+- name: Get etcd server address
+  set_fact:
+    etcd_ip: "{{ etcd_ip + hostvars[item]['kvm_ip'] }},"
+  with_items: "{{ groups[etcd_group] }}"
+
+- name: Generate kube-etcd-peer certificate
+  args:
+    chdir: "{{ certificate_dir }}/certificates/kube-etcd-peer"
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca.pem \
+    -ca-key={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=client-server \
+    -hostname=localhost,127.0.0.1,{{ etcd_ip[:-1] }} \
+    {{ certificate_dir }}/templates/kube-etcd-peer-csr.json | cfssljson -bare kube-etcd-peer
+
+- name: Generate kube-etcd-healthcheck-client certificate
+  args:
+    chdir: "{{ certificate_dir }}/certificates/kube-etcd-healthcheck-client"
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca.pem \
+    -ca-key={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=client \
+    {{ certificate_dir }}/templates/kube-etcd-healthcheck-client-csr.json | cfssljson -bare kube-etcd-healthcheck-client
+
+- name: Generate kube-apiserver-etcd-client certificate
+  args:
+    chdir: "{{ certificate_dir }}/certificates/kube-apiserver-etcd-client"
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca.pem \
+    -ca-key={{ certificate_dir }}/intermediates/etcd-ca/etcd-ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=client \
+    {{ certificate_dir }}/templates/kube-apiserver-etcd-client-csr.json | cfssljson -bare kube-apiserver-etcd-client

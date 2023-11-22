@@ -1,0 +1,16 @@
+{
+  "CN": "system:kube-controller-manager",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "{{ country }}",
+      "L": "{{ city }}",
+      "O": "system:kube-controller-manager",
+      "OU": "{{ organizationUnit }}",
+      "ST": "{{ province }}"
+    }
+  ]
+}

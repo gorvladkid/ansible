@@ -1,0 +1,3 @@
+---
+- include: certificate-worker.yml
+- include: kubeconfig-worker.yml

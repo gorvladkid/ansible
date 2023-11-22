@@ -1,0 +1,65 @@
+---
+- name: Create worker certificate directory
+  file:
+    path: "{{ certificate_dir }}/{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - "{{ worker_sub_dirs }}"
+
+- name: Copy worker templates
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ certificate_dir }}/templates/{{ item }}"
+  with_items:
+    - ca-config.json
+    - kube-proxy-csr.json
+
+- name: Copy master certificate
+  template:
+    src: "master-csr.json.j2"
+    dest: "{{ certificate_dir }}/templates/{{ hostvars[item]['kvm_ip'] }}-csr.json"
+  with_items: "{{ groups[master_group] }}"
+
+- name: Copy worker certificate
+  template:
+    src: "worker-csr.json.j2"
+    dest: "{{ certificate_dir }}/templates/{{ hostvars[item]['kvm_ip'] }}-csr.json"
+  with_items: "{{ groups[worker_group] }}"
+
+- name: Generate kube-proxy certificate
+  args:
+    chdir: "{{ certificate_dir }}/certificates/kube-proxy"
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/intermediates/kubernetes-ca/kubernetes-ca.pem \
+    -ca-key={{ certificate_dir }}/intermediates/kubernetes-ca/kubernetes-ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -profile=client-server \
+    {{ certificate_dir }}/templates/kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+- name: Generate kubelet master certificate
+  args:
+    chdir: "{{ certificate_dir }}/certificates/kubelet"
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/intermediates/kubernetes-ca/kubernetes-ca.pem \
+    -ca-key={{ certificate_dir }}/intermediates/kubernetes-ca/kubernetes-ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -hostname={{ hostvars[item]['kvm_ip'] }} \
+    -profile=client-server \
+    {{ certificate_dir }}/templates/{{ hostvars[item]['kvm_ip'] }}-csr.json | cfssljson -bare {{ hostvars[item]['kvm_ip'] }}
+  with_items: "{{ groups[master_group] }}"
+
+- name: Generate kubelet worker certificate
+  args:
+    chdir: "{{ certificate_dir }}/certificates/kubelet"
+  shell: |
+    cfssl gencert \
+    -ca={{ certificate_dir }}/intermediates/kubernetes-ca/kubernetes-ca.pem \
+    -ca-key={{ certificate_dir }}/intermediates/kubernetes-ca/kubernetes-ca-key.pem \
+    -config={{ certificate_dir }}/templates/ca-config.json \
+    -hostname={{ hostvars[item]['kvm_ip'] }} \
+    -profile=client-server \
+    {{ certificate_dir }}/templates/{{ hostvars[item]['kvm_ip'] }}-csr.json | cfssljson -bare {{ hostvars[item]['kvm_ip'] }}
+  with_items: "{{ groups[worker_group] }}"

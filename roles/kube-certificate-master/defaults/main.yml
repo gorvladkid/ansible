@@ -1,0 +1,34 @@
+---
+cluster_name: kubernetes-cluster-01
+master_group: kube-servers
+# virtual_ip: "{{ hostvars['kube-load-balancer']['kvm_ip'] }}"
+# virtual_port: 64430
+
+
+certificate_dir: /tmp/ansible/kubernetes-certificate
+master_sub_dirs:
+  - "certificates/kube-apiserver"
+  - "certificates/kube-apiserver-kubelet-client"
+  - "certificates/kubernetes-admin"
+  - "certificates/kube-controller-manager"
+  - "certificates/front-proxy-client"
+  - "certificates/kube-scheduler"
+
+# master_ips: "{{ infrastructure.keepalived.virtualIP }}{% if kubernetes.components.APIServer.additionalIP is defined %},{{ kubernetes.components.APIServer.additionalIP }}{% endif %},kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local"
+core_dns_ip:
+master_ip: ""
+### root CA expired time (20 year)
+expireTime: 175200h
+### intermediate CA expired time (10 year)
+intermediateExpireTime: 87600h
+### certificate expired time (1 year)
+certificate:
+  expireTime: 8760h
+city: Ternopil
+country: UA
+organizationUnit: Kubernetes
+province: Ternopil
+
+# cfssl_version: 1.5.0
+# cfssl_url: https://github.com/cloudflare/cfssl/releases/download
+# local_bin_dir: /usr/local/bin/

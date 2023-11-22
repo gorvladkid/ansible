@@ -1,0 +1,3 @@
+---
+virtual_ip: "{{ hostvars['kube-load-balancer']['kvm_ip'] }}"
+virtual_port: 64430

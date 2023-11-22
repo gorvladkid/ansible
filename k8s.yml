@@ -1,6 +1,9 @@
-- hosts:
-    - kube-server
-#    - kube-nodes
-  become: true
+- name: Generate certificate & kubeconfig
+  connection: local
+  hosts:
+    - localhost
   roles:
-    - k8s
+    - kube-certificate-ca
+    - kube-certificate-etcd
+    - kube-certificate-master
+    - kube-certificate-worker

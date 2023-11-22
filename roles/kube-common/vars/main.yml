@@ -1,0 +1,22 @@
+---
+packages:
+  - aptitude
+  - vim
+  - htop
+  - ntp
+  - sudo
+  - iptables-persistent
+  - curl
+  - build-essential
+  - git
+  - net-tools
+  - bash-completion
+  - rsync
+  - screen
+  - wget
+  - bc
+  - cpufrequtils
+  - nano
+  - cron
+  - cfssl
+  - kubectl

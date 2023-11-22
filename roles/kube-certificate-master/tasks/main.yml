@@ -1,0 +1,4 @@
+---
+- include: certificate-master.yml
+- include: kubeconfig-master.yml
+- include: kubeconfig-client.yml

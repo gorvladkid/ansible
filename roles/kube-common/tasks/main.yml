@@ -1,0 +1,120 @@
+---
+- name: set hostname
+  hostname:
+    name: "{{ inventory_hostname }}.local"
+
+- name: set timezone
+  timezone:
+    name: "{{ time_zone }}"
+
+- name: install packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+
+- name: install sudo
+  apt:
+    name: sudo
+    state: present
+  tags: sudo
+
+- name: config sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL:ALL) NOPASSWD:ALL'
+    validate: 'visudo -cf %s'
+  tags: sudo
+
+- name: add user vlad
+  user:
+    name: vlad
+    shell: /bin/bash
+    groups: sudo
+    append: yes
+    uid: 1000
+    password: '$6$Ut6mSjl/MY.VCMqF$dJwSnGD8JfcqYQDZo6Coe8zzvyaz9jyPBuVI.F3PPGNGawvZESirv6kSXIaUFerB8HtLrra3nsPdCIN7DUkJ2/'
+  tags: sudo
+
+- name: vim config
+  lineinfile:
+    dest: /root/.vimrc
+    line: 'autocmd BufEnter * set mouse='
+    create: yes
+
+- name: vim config
+  lineinfile:
+    dest: /root/.vimrc
+    line: 'syntax on'
+
+- name: Set ssh root keys
+  authorized_key:
+    user: root
+    key: '{{ item }}'
+    state: present
+  with_file:
+    - vlad.pub
+  loop_control:
+    label: "{{ item }}"
+
+- name: Set ssh vlad keys
+  authorized_key:
+    user: vlad
+    state: present
+    key: '{{ item }}'
+  with_file:
+    - vlad.pub
+  loop_control:
+    label: "{{ item }}"
+  tags: ssh_keys
+
+- name: Configure sshd
+  template:
+    src: sshd_conf.j2
+    dest: /etc/ssh/sshd_config
+    backup: yes
+  notify: reload ssh
+  tags: sshd
+
+# - name: Copy /etc/resolv.conf
+#   template:
+#     src: resolv.conf.j2
+#     dest: /etc/resolv.conf
+#     backup: yes
+#   tags:
+#     - resolv
+
+# - name: Create dhclient hook to prevent it from updating /etc/resolv.conf
+#   copy:
+#     src: nodnsupdate
+#     dest: /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
+#   tags:
+#     - resolv
+
+#reboot server to apply or use this command to change govenror on fly, where 0-15 cpu cores
+#for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do cpufreq-set -c $i -g performance; done
+
+- name: Configure limits
+  template:
+    src: limits.conf.j2
+    dest: /etc/security/limits.d/vlad-limits.conf
+
+- name: Configure sysctl
+  sysctl:
+    name: "{{ item.name }}"
+    value: '{{ item.value }}'
+    state: present
+    sysctl_file: /etc/sysctl.conf
+    reload: yes
+  with_items:
+    - "{{ sysctl_list }}"
+  tags:
+    - sysctl
+
+#joophoc3ouThai1u
+- name: Reset root pass
+  user:
+    name: root
+    password: '$6$Ut6mSjl/MY.VCMqF$dJwSnGD8JfcqYQDZo6Coe8zzvyaz9jyPBuVI.F3PPGNGawvZESirv6kSXIaUFerB8HtLrra3nsPdCIN7DUkJ2/'
